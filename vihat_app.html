@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vihat Solutions — Internal Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f0ede8;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.13);
+  --text: #1a1a1a;
+  --text2: #6b6b6b;
+  --text3: #9b9b9b;
+  --accent: #1a1a2e;
+  --accent2: #16213e;
+  --green: #2d6a4f;
+  --green-bg: #d8f3dc;
+  --amber: #7d4e00;
+  --amber-bg: #fff3cd;
+  --red: #9b2226;
+  --red-bg: #fde8e8;
+  --blue: #1d4e89;
+  --blue-bg: #dce8f7;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.app-shell{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+.sidebar{width:220px;background:var(--accent);display:flex;flex-direction:column;padding:0;flex-shrink:0}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.logo-mark{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:#fff;letter-spacing:-0.3px}
+.logo-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-section{padding:16px 20px 6px;font-size:9px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:1.2px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;background:rgba(255,255,255,0.1);border-left-color:#fff}
+.nav-item i{width:16px;text-align:center;font-size:14px}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08)}
+.user-pill{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:12px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:rgba(255,255,255,0.4)}
+
+/* Main */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:18px 28px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;color:var(--text)}
+.page-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);transition:all .15s;font-family:inherit}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.content{padding:24px 28px;flex:1}
+
+/* Section tabs */
+.section-page{display:none}
+.section-page.active{display:block}
+
+/* Metric cards */
+.metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow)}
+.metric-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.metric-val{font-size:26px;font-weight:600;font-family:'Space Grotesk',sans-serif;color:var(--text);line-height:1}
+.metric-footer{font-size:11px;color:var(--text2);margin-top:6px;display:flex;align-items:center;gap:4px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.chip-green{background:var(--green-bg);color:var(--green)}
+.chip-amber{background:var(--amber-bg);color:var(--amber)}
+.chip-red{background:var(--red-bg);color:var(--red)}
+.chip-blue{background:var(--blue-bg);color:var(--blue)}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-title i{color:var(--text3)}
+
+/* Progress bar */
+.progress-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;flex:1}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.fill-green{background:var(--green)}.fill-amber{background:#e09900}.fill-red{background:#dc3545}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text3);padding:0 12px 12px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.data-table td{padding:12px;border-top:1px solid var(--border);color:var(--text);vertical-align:middle}
+.data-table tr:hover td{background:var(--surface2)}
+.data-table th:first-child,.data-table td:first-child{padding-left:0}
+
+/* Alert */
+.alert{display:flex;gap:12px;padding:12px 16px;border-radius:var(--radius);margin-bottom:10px;align-items:flex-start}
+.alert-warn{background:var(--amber-bg);border:1px solid #f5c542}
+.alert-danger{background:var(--red-bg);border:1px solid #f5a5a5}
+.alert-info{background:var(--blue-bg);border:1px solid #93b8e0}
+.alert i{margin-top:1px;flex-shrink:0}
+.alert-body-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.alert-body-desc{font-size:12px;color:var(--text2)}
+
+/* Task styles */
+.task-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text2);transition:all .15s;font-family:inherit}
+.filter-btn.active,.filter-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.task-board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.task-col{background:var(--surface2);border-radius:var(--radius-lg);padding:14px}
+.task-col-header{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.task-count{background:var(--border2);padding:1px 7px;border-radius:10px;font-size:11px;color:var(--text)}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.task-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.task-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:8px;line-height:1.4}
+.task-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.task-assignee{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px;margin-top:6px}
+.task-due{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px;margin-top:4px}
+.task-due.overdue{color:var(--red)}
+.priority-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.p-high{background:#dc3545}.p-med{background:#e09900}.p-low{background:var(--green)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:560px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.18)}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:4px;line-height:1}
+.modal-body{padding:20px 24px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.3px}
+.form-input,.form-select,.form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit;color:var(--text);background:var(--surface);transition:border .15s;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{padding:0 24px 20px;display:flex;gap:8px;justify-content:flex-end}
+
+/* Team grid */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.team-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow)}
+.team-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.team-name-badge{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;color:var(--text)}
+.team-leader{font-size:11px;color:var(--text3);margin-top:1px}
+.team-kpi-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.team-kpi-label{font-size:12px;color:var(--text2);min-width:60px}
+.team-kpi-val{font-size:12px;font-weight:600;color:var(--text);min-width:65px;text-align:right}
+.member-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--border)}
+.member-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
+.member-name{flex:1;font-size:12px;font-weight:500;color:var(--text)}
+.member-pct{font-size:12px;font-weight:600}
+.member-bar{flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.member-fill{height:100%;border-radius:2px}
+
+/* Google Sheets connect */
+.gs-connect{background:var(--blue-bg);border:1px solid #93b8e0;border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gs-text{font-size:13px;color:var(--blue)}
+.gs-sub{font-size:11px;color:var(--text2);margin-top:3px}
+
+/* Charts */
+.chart-wrap{position:relative;width:100%}
+
+/* Tabs inside page */
+.page-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.page-tab{padding:9px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit}
+.page-tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.page-tab:hover{color:var(--text)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* Search */
+.search-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);flex:1;max-width:280px}
+.search-bar i{color:var(--text3);font-size:13px}
+.search-bar input{border:none;outline:none;font-size:13px;font-family:inherit;color:var(--text);background:transparent;flex:1}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+
+/* Two-col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+.sep{height:1px;background:var(--border);margin:20px 0}
+.text-green{color:var(--green)}.text-amber{color:var(--amber)}.text-red{color:var(--red)}
+.text-muted{color:var(--text2)}
+.bold{font-weight:600}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Vihat Solutions</div>
+    <div class="logo-sub">Internal Dashboard</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Báo cáo</div>
+    <div class="nav-item active" onclick="goTo('dashboard')"><i class="fa-solid fa-chart-line"></i> Tổng quan CEO</div>
+    <div class="nav-item" onclick="goTo('teams')"><i class="fa-solid fa-users"></i> Theo Team</div>
+    <div class="nav-item" onclick="goTo('people')"><i class="fa-solid fa-user-tie"></i> Nhân viên</div>
+    <div class="nav-item" onclick="goTo('alerts')"><i class="fa-solid fa-triangle-exclamation"></i> Cảnh báo</div>
+    <div class="nav-section">Vận hành</div>
+    <div class="nav-item" onclick="goTo('tasks')"><i class="fa-solid fa-list-check"></i> Giao Task</div>
+    <div class="nav-section">Cài đặt</div>
+    <div class="nav-item" onclick="goTo('settings')"><i class="fa-solid fa-gear"></i> Kết nối Sheets</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">CL</div>
+      <div class="user-info">
+        <div class="user-name">Cai Ngọc Luân</div>
+        <div class="user-role">Giám Đốc Điều Hành</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="topbar-title">Tổng quan CEO</div>
+      <div class="page-sub" id="topbar-sub">Vihat Solutions · Tháng 5/2026</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Tìm kiếm..." id="globalSearch" oninput="handleSearch(this.value)">
+      </div>
+      <button class="btn btn-primary" onclick="openTaskModal()"><i class="fa-solid fa-plus"></i> Tạo Task</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="section-page active" id="page-dashboard">
+
+    <div class="gs-connect" id="gs-banner">
+      <div>
+        <div class="gs-text"><i class="fa-brands fa-google" style="margin-right:6px"></i> Chưa kết nối Google Sheets</div>
+        <div class="gs-sub">Đang hiển thị dữ liệu từ file upload. Vào "Kết nối Sheets" để tự động cập nhật.</div>
+      </div>
+      <button class="btn btn-sm" onclick="goTo('settings')">Kết nối ngay</button>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="metric-row">
+      <div class="metric-card">
+        <div class="metric-label">DT Mass — Tháng 5</div>
+        <div class="metric-val" id="m-dt-t5">225tr</div>
+        <div class="metric-footer"><span class="chip chip-amber">37% KPI</span> mục tiêu 640tr</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">DT Mới T1–T5</div>
+        <div class="metric-val">906tr</div>
+        <div class="metric-footer"><span class="chip chip-green">+12% vs plan</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">DT Cũ T1–T5</div>
+        <div class="metric-val">3,27 tỷ</div>
+        <div class="metric-footer"><span class="chip chip-green">Ổn định</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Tổng nhân sự KD</div>
+        <div class="metric-val">23</div>
+        <div class="metric-footer">WAO·11 / TING·8 / WORK·4</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Nhân viên ≥75% KPI</div>
+        <div class="metric-val text-green">7</div>
+        <div class="metric-footer"><span class="chip chip-red">9 người dưới 75%</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Tasks đang mở</div>
+        <div class="metric-val" id="open-task-count">0</div>
+        <div class="metric-footer">Chưa hoàn thành</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Monthly progress chart -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-chart-bar"></i> % Đạt KPI theo tháng — Mass</div>
+        </div>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartMonthly" role="img" aria-label="KPI theo tháng Mass 2026"></canvas>
+        </div>
+      </div>
+
+      <!-- Team comparison -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-chart-column"></i> KPI vs Thực tế 3 Team — T5</div>
+        </div>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartTeamCompare" role="img" aria-label="So sánh 3 team tháng 5"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team progress -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-ranking-star"></i> Tiến độ theo Team</div>
+      </div>
+      <div id="team-progress-list">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div style="min-width:110px;font-weight:500">Team WAO</div>
+          <div style="font-size:11px;color:var(--text2);min-width:55px">T.Thăng</div>
+          <div class="progress-track"><div class="progress-fill fill-amber" style="width:37%"></div></div>
+          <div style="min-width:40px;text-align:right;font-weight:600;font-size:13px;color:#e09900">37%</div>
+          <div style="font-size:12px;color:var(--text2)">114tr / 660tr</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div style="min-width:110px;font-weight:500">Team TING</div>
+          <div style="font-size:11px;color:var(--text2);min-width:55px">H.Giang</div>
+          <div class="progress-track"><div class="progress-fill fill-red" style="width:11%"></div></div>
+          <div style="min-width:40px;text-align:right;font-weight:600;font-size:13px;color:var(--red)">11%</div>
+          <div style="font-size:12px;color:var(--text2)">69tr / 620tr</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0">
+          <div style="min-width:110px;font-weight:500">Team WORK</div>
+          <div style="font-size:11px;color:var(--text2);min-width:55px">C.Hiếu</div>
+          <div class="progress-track"><div class="progress-fill fill-red" style="width:12%"></div></div>
+          <div style="min-width:40px;text-align:right;font-weight:600;font-size:13px;color:var(--red)">12%</div>
+          <div style="font-size:12px;color:var(--text2)">42tr / 360tr</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /dashboard -->
+
+  <!-- ===== TEAMS ===== -->
+  <div class="section-page" id="page-teams">
+    <div class="team-grid">
+      <!-- WAO -->
+      <div class="team-card">
+        <div class="team-card-header">
+          <div>
+            <div class="team-name-badge">Team WAO</div>
+            <div class="team-leader">Leader: Trọng Thăng · 11 người</div>
+          </div>
+          <div class="chip chip-amber">37% KPI</div>
+        </div>
+        <div class="team-kpi-row">
+          <div class="team-kpi-label">KPI T5</div>
+          <div class="progress-track"><div class="progress-fill fill-amber" style="width:37%"></div></div>
+          <div class="team-kpi-val">660 tr</div>
+        </div>
+        <div class="team-kpi-row" style="margin-bottom:12px">
+          <div class="team-kpi-label">Thực tế</div>
+          <div class="progress-track" style="background:transparent"></div>
+          <div class="team-kpi-val text-amber">114 tr</div>
+        </div>
+        <div id="wao-members"></div>
+      </div>
+      <!-- TING -->
+      <div class="team-card">
+        <div class="team-card-header">
+          <div>
+            <div class="team-name-badge">Team TING</div>
+            <div class="team-leader">Leader: Hương Giang · 8 người</div>
+          </div>
+          <div class="chip chip-red">11% KPI</div>
+        </div>
+        <div class="team-kpi-row">
+          <div class="team-kpi-label">KPI T5</div>
+          <div class="progress-track"><div class="progress-fill fill-red" style="width:11%"></div></div>
+          <div class="team-kpi-val">620 tr</div>
+        </div>
+        <div class="team-kpi-row" style="margin-bottom:12px">
+          <div class="team-kpi-label">Thực tế</div>
+          <div class="progress-track" style="background:transparent"></div>
+          <div class="team-kpi-val text-red">69 tr</div>
+        </div>
+        <div id="ting-members"></div>
+      </div>
+      <!-- WORK -->
+      <div class="team-card">
+        <div class="team-card-header">
+          <div>
+            <div class="team-name-badge">Team WORK</div>
+            <div class="team-leader">Leader: Chí Hiếu · 4 người</div>
+          </div>
+          <div class="chip chip-red">12% KPI</div>
+        </div>
+        <div class="team-kpi-row">
+          <div class="team-kpi-label">KPI T5</div>
+          <div class="progress-track"><div class="progress-fill fill-red" style="width:12%"></div></div>
+          <div class="team-kpi-val">360 tr</div>
+        </div>
+        <div class="team-kpi-row" style="margin-bottom:12px">
+          <div class="team-kpi-label">Thực tế</div>
+          <div class="progress-track" style="background:transparent"></div>
+          <div class="team-kpi-val text-red">42 tr</div>
+        </div>
+        <div id="work-members"></div>
+      </div>
+    </div>
+
+    <!-- Monthly by team -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-chart-line"></i> Doanh thu thực 3 Team — T1 đến T5</div>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="chartTeamMonthly" role="img" aria-label="Doanh thu 3 team theo tháng"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PEOPLE ===== -->
+  <div class="section-page" id="page-people">
+    <div class="page-tabs">
+      <button class="page-tab active" onclick="switchTab('people','t1-tab','tab-t1')">Tháng 1</button>
+      <button class="page-tab" onclick="switchTab('people','t2-tab','tab-t2')">Tháng 2</button>
+      <button class="page-tab" onclick="switchTab('people','t3-tab','tab-t3')">Tháng 3</button>
+      <button class="page-tab" onclick="switchTab('people','t4-tab','tab-t4')">Tháng 4</button>
+      <button class="page-tab" onclick="switchTab('people','t5-tab','tab-t5')">Tháng 5 ▲</button>
+    </div>
+    <div id="tab-t1" class="tab-content active"></div>
+    <div id="tab-t2" class="tab-content"></div>
+    <div id="tab-t3" class="tab-content"></div>
+    <div id="tab-t4" class="tab-content"></div>
+    <div id="tab-t5" class="tab-content"></div>
+  </div>
+
+  <!-- ===== ALERTS ===== -->
+  <div class="section-page" id="page-alerts">
+    <div class="alert alert-danger">
+      <i class="fa-solid fa-circle-exclamation" style="color:var(--red);font-size:16px;margin-top:1px"></i>
+      <div>
+        <div class="alert-body-title">Team TING — chỉ đạt 11% KPI tháng 5</div>
+        <div class="alert-body-desc">KPI 620tr, thực tế mới về 69tr. Đã qua tuần 3. H.Giang cần review pipeline ngay — cơ hội dồn về cuối tháng rất rủi ro.</div>
+      </div>
+    </div>
+    <div class="alert alert-danger">
+      <i class="fa-solid fa-circle-exclamation" style="color:var(--red);font-size:16px;margin-top:1px"></i>
+      <div>
+        <div class="alert-body-title">Team WORK — chỉ đạt 12% KPI tháng 5</div>
+        <div class="alert-body-desc">KPI 360tr, thực tế 42tr. C.Hiếu (KPI 100tr) chưa có deal mới trong tháng 5. Cần action ngay.</div>
+      </div>
+    </div>
+    <div class="alert alert-warn">
+      <i class="fa-solid fa-triangle-exclamation" style="color:var(--amber);font-size:16px;margin-top:1px"></i>
+      <div>
+        <div class="alert-body-title">T.Thăng — Leader WAO chưa có DT mới T5</div>
+        <div class="alert-body-desc">KPI DT mới 70tr nhưng tháng 5 đang về 0. Leader cần giữ hiệu suất cá nhân song song quản lý team.</div>
+      </div>
+    </div>
+    <div class="alert alert-warn">
+      <i class="fa-solid fa-triangle-exclamation" style="color:var(--amber);font-size:16px;margin-top:1px"></i>
+      <div>
+        <div class="alert-body-title">K.Duy (TING) — tháng 1 chỉ đạt 27% KPI</div>
+        <div class="alert-body-desc">DT mới 16tr / KPI 60tr. Cần theo dõi thêm — đây là nhân viên thử việc.</div>
+      </div>
+    </div>
+    <div class="alert alert-warn">
+      <i class="fa-solid fa-triangle-exclamation" style="color:var(--amber);font-size:16px;margin-top:1px"></i>
+      <div>
+        <div class="alert-body-title">H2 áp lực cao — KPI tháng 6 tăng mạnh</div>
+        <div class="alert-body-desc">WAO: 810tr (+23% vs T5), TING: 660tr (+6%), WORK: 400tr (+11%). Cần chuẩn bị kế hoạch tuyển dụng và chương trình ưu đãi sớm.</div>
+      </div>
+    </div>
+    <div class="alert alert-info">
+      <i class="fa-solid fa-circle-info" style="color:var(--blue);font-size:16px;margin-top:1px"></i>
+      <div>
+        <div class="alert-body-title">Chưa có Trưởng phòng KD — 3 Leader đang được thử thách</div>
+        <div class="alert-body-desc">T.Thăng (WAO), H.Giang (TING), C.Hiếu (WORK). Kết quả T5 sẽ là dữ liệu quan trọng để đánh giá.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TASKS ===== -->
+  <div class="section-page" id="page-tasks">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="task-filters">
+        <button class="filter-btn active" onclick="filterTasks('all',this)">Tất cả</button>
+        <button class="filter-btn" onclick="filterTasks('todo',this)">Cần làm</button>
+        <button class="filter-btn" onclick="filterTasks('in-progress',this)">Đang làm</button>
+        <button class="filter-btn" onclick="filterTasks('review',this)">Chờ duyệt</button>
+        <button class="filter-btn" onclick="filterTasks('done',this)">Hoàn thành</button>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openTaskModal()"><i class="fa-solid fa-plus"></i> Tạo Task</button>
+    </div>
+    <div class="task-board" id="task-board">
+      <div class="task-col" id="col-todo">
+        <div class="task-col-header">Cần làm <span class="task-count" id="cnt-todo">0</span></div>
+      </div>
+      <div class="task-col" id="col-in-progress">
+        <div class="task-col-header">Đang làm <span class="task-count" id="cnt-in-progress">0</span></div>
+      </div>
+      <div class="task-col" id="col-review">
+        <div class="task-col-header">Chờ duyệt <span class="task-count" id="cnt-review">0</span></div>
+      </div>
+      <div class="task-col" id="col-done">
+        <div class="task-col-header">Hoàn thành <span class="task-count" id="cnt-done">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div class="section-page" id="page-settings">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-brands fa-google"></i> Kết nối Google Sheets</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">
+        Để dashboard tự động cập nhật, anh cần:<br>
+        1. Tạo 1 Google Sheet mới → dùng <code style="background:var(--surface2);padding:1px 5px;border-radius:4px">IMPORTRANGE</code> để kéo data từ file chính<br>
+        2. Share sheet đó ở chế độ <strong>"Anyone with the link – Viewer"</strong><br>
+        3. Dán link vào ô bên dưới
+      </p>
+      <div class="form-group">
+        <label class="form-label">Link Google Sheets (public viewer)</label>
+        <input type="text" class="form-input" id="gs-url-input" placeholder="https://docs.google.com/spreadsheets/d/..." value="">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sheet ID (tự động lấy từ link)</label>
+        <input type="text" class="form-input" id="gs-id-display" placeholder="Sẽ tự điền khi nhập link..." readonly style="background:var(--surface2)">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="saveGSConfig()"><i class="fa-solid fa-plug"></i> Kết nối</button>
+        <button class="btn" onclick="testGSConfig()"><i class="fa-solid fa-vial"></i> Test kết nối</button>
+      </div>
+      <div id="gs-status" style="margin-top:12px;font-size:13px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-users"></i> Danh sách nhân viên</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Danh sách này dùng khi giao task. Cập nhật khi có nhân sự mới.</p>
+      <table class="data-table">
+        <thead><tr><th>Tên</th><th>Tên đầy đủ</th><th>Team / Bộ phận</th><th>Chức vụ</th></tr></thead>
+        <tbody id="staff-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app-shell -->
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="task-modal-overlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title-text">Tạo Task mới</div>
+      <button class="modal-close" onclick="closeTaskModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-task-id">
+      <div class="form-group">
+        <label class="form-label">Tiêu đề task *</label>
+        <input type="text" class="form-input" id="task-title-input" placeholder="Mô tả ngắn gọn công việc cần làm...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mô tả chi tiết</label>
+        <textarea class="form-textarea" id="task-desc-input" placeholder="Yêu cầu cụ thể, output mong đợi, lưu ý..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Giao cho *</label>
+          <select class="form-select" id="task-assignee-input"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Người theo dõi</label>
+          <select class="form-select" id="task-watcher-input"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ưu tiên</label>
+          <select class="form-select" id="task-priority-input">
+            <option value="high">🔴 Cao</option>
+            <option value="med" selected>🟡 Trung bình</option>
+            <option value="low">🟢 Thấp</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deadline</label>
+          <input type="date" class="form-input" id="task-due-input">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Loại task</label>
+          <select class="form-select" id="task-type-input">
+            <option value="kinh-doanh">Kinh doanh</option>
+            <option value="van-hanh">Vận hành</option>
+            <option value="bao-cao">Báo cáo</option>
+            <option value="nhan-su">Nhân sự</option>
+            <option value="khac">Khác</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Trạng thái</label>
+          <select class="form-select" id="task-status-input">
+            <option value="todo">Cần làm</option>
+            <option value="in-progress">Đang làm</option>
+            <option value="review">Chờ duyệt</option>
+            <option value="done">Hoàn thành</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cập nhật tiến độ (note mới nhất)</label>
+        <textarea class="form-textarea" id="task-progress-input" placeholder="Tuần này đã làm gì, vướng mắc ở đâu..." style="min-height:60px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeTaskModal()">Hủy</button>
+      <button class="btn btn-primary" onclick="saveTask()"><i class="fa-solid fa-check"></i> Lưu Task</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+
+const KPI_MASS = [3200597403,2706977757,3757331894,3687307730,3536111689,3986891621,3792681240,4074365262,3888293135,3998485072,3847070840,4025487370];
+const KPI_WAO  = [420,310,510,570,660,810,880,900,960,1060,990,1040];
+const KPI_TING = [300,280,400,520,620,660,720,840,880,940,1000,1120];
+const KPI_WORK = [300,240,288,288,360,400,468,510,619,563,633,679];
+
+const ACTUAL_WAO  = [442,177,406,379,114,0,0,0,0,0,0,0];
+const ACTUAL_TING = [114,204,252,238,69,0,0,0,0,0,0,0];
+const ACTUAL_WORK = [135,213,163,102,42,0,0,0,0,0,0,0];
+
+const STAFF = [
+  {id:'ceo',    name:'C.Luân',    full:'Cai Ngọc Luân',    team:'Ban Giám Đốc',  role:'CEO'},
+  {id:'vhop',   name:'TP.Vận Hành',full:'Trưởng Phòng Vận Hành',team:'Vận Hành',role:'TP Vận Hành'},
+  {id:'thang',  name:'T.Thăng',   full:'Trọng Thăng',       team:'WAO',    role:'Team Leader'},
+  {id:'minh',   name:'T.Minh',    full:'Tuyết Minh',        team:'WAO',    role:'L4'},
+  {id:'ngan',   name:'T.Ngân',    full:'Thảo Ngân',         team:'WAO',    role:'L4'},
+  {id:'thanh',  name:'C.Thành',   full:'Chí Thành',         team:'WAO',    role:'L2'},
+  {id:'ho',     name:'N.Hồ',      full:'Ngọc Hồ',           team:'WAO',    role:'L3'},
+  {id:'nguyen', name:'T.Nguyên',  full:'Thảo Nguyên',       team:'WAO',    role:'L1'},
+  {id:'khoa',   name:'Đ.Khoa',    full:'Đức Khoa',          team:'WAO',    role:'Thử việc'},
+  {id:'vy',     name:'B.Vy',      full:'Bảo Vy',            team:'WAO',    role:'Thử việc'},
+  {id:'lan',    name:'T.Lan',     full:'Thu Lan',            team:'WAO',    role:'Thử việc'},
+  {id:'quang',  name:'M.Quang',   full:'Minh Quang',        team:'WAO',    role:'Thử việc'},
+  {id:'giang',  name:'H.Giang',   full:'Hương Giang',       team:'TING',   role:'Team Leader'},
+  {id:'duy',    name:'N.Duy',     full:'Nhật Duy',          team:'TING',   role:'L4'},
+  {id:'truc',   name:'K.Trúc',    full:'Khánh Trúc',        team:'TING',   role:'L3'},
+  {id:'kduy',   name:'K.Duy',     full:'Kim Duy',           team:'TING',   role:'Thử việc'},
+  {id:'hieu',   name:'C.Hiếu',    full:'Chí Hiếu',          team:'WORK',   role:'Team Leader'},
+  {id:'luan',   name:'H.Luân',    full:'Luân',              team:'WORK',   role:'L4'},
+  {id:'bthanh', name:'B.Thanh',   full:'Bá Thanh',          team:'WORK',   role:'Thử việc'},
+  {id:'khanhbd',name:'C.Khánh',   full:'Công Khánh',        team:'BD',     role:'BD'},
+  {id:'honganh',name:'H.Anh',     full:'Hồng Anh',          team:'Partnership',role:'Partnership'},
+];
+
+const PEOPLE_DATA = {
+  t1: [
+    {name:'T.Thăng',team:'WAO',kpi:100,dtMoi:3.69,dtCu:193,deals:2,leads:56},
+    {name:'T.Minh',team:'WAO',kpi:100,dtMoi:110.1,dtCu:368,deals:4,leads:100},
+    {name:'T.Ngân',team:'WAO',kpi:100,dtMoi:120.3,dtCu:199,deals:8,leads:7},
+    {name:'C.Thành',team:'WAO',kpi:100,dtMoi:87.9,dtCu:3.8,deals:5,leads:72},
+    {name:'N.Hồ',team:'WAO',kpi:80,dtMoi:66.9,dtCu:52,deals:4,leads:52},
+    {name:'T.Nguyên',team:'WAO',kpi:40,dtMoi:34.9,dtCu:0.8,deals:2,leads:101},
+    {name:'M.Quang',team:'WAO',kpi:60,dtMoi:18.3,dtCu:0.3,deals:1,leads:0},
+    {name:'H.Giang',team:'TING',kpi:100,dtMoi:15.3,dtCu:97.2,deals:1,leads:50},
+    {name:'N.Duy',team:'TING',kpi:100,dtMoi:42.7,dtCu:84.9,deals:5,leads:56},
+    {name:'K.Trúc',team:'TING',kpi:80,dtMoi:40,dtCu:46,deals:4,leads:65},
+    {name:'K.Duy',team:'TING',kpi:60,dtMoi:16,dtCu:75.4,deals:1,leads:47},
+    {name:'C.Hiếu',team:'WORK',kpi:100,dtMoi:0,dtCu:181,deals:0,leads:26},
+    {name:'H.Luân',team:'WORK',kpi:100,dtMoi:109.7,dtCu:278.3,deals:8,leads:8},
+    {name:'B.Thanh',team:'WORK',kpi:60,dtMoi:25.3,dtCu:5,deals:3,leads:88},
+  ],
+  t2: [
+    {name:'T.Thăng',team:'WAO',kpi:100,dtMoi:0,dtCu:190,deals:0,leads:42},
+    {name:'T.Minh',team:'WAO',kpi:100,dtMoi:45,dtCu:200,deals:2,leads:80},
+    {name:'T.Ngân',team:'WAO',kpi:100,dtMoi:32,dtCu:150,deals:3,leads:20},
+    {name:'C.Thành',team:'WAO',kpi:100,dtMoi:55,dtCu:5,deals:3,leads:60},
+    {name:'N.Hồ',team:'WAO',kpi:80,dtMoi:20,dtCu:48,deals:2,leads:45},
+    {name:'T.Nguyên',team:'WAO',kpi:40,dtMoi:25,dtCu:0.8,deals:1,leads:95},
+    {name:'H.Giang',team:'TING',kpi:100,dtMoi:60,dtCu:90,deals:3,leads:48},
+    {name:'N.Duy',team:'TING',kpi:100,dtMoi:80,dtCu:80,deals:4,leads:52},
+    {name:'K.Trúc',team:'TING',kpi:80,dtMoi:50,dtCu:42,deals:3,leads:60},
+    {name:'K.Duy',team:'TING',kpi:60,dtMoi:14,dtCu:72,deals:1,leads:44},
+    {name:'C.Hiếu',team:'WORK',kpi:100,dtMoi:30,dtCu:175,deals:1,leads:22},
+    {name:'H.Luân',team:'WORK',kpi:100,dtMoi:120,dtCu:260,deals:7,leads:10},
+    {name:'B.Thanh',team:'WORK',kpi:60,dtMoi:63,dtCu:4.5,deals:4,leads:80},
+  ],
+  t5: [
+    {name:'T.Thăng',team:'WAO',kpi:70,dtMoi:0,dtCu:56,deals:0,leads:15},
+    {name:'T.Minh',team:'WAO',kpi:120,dtMoi:42,dtCu:103,deals:2,leads:75},
+    {name:'T.Ngân',team:'WAO',kpi:120,dtMoi:0,dtCu:43,deals:0,leads:11},
+    {name:'C.Thành',team:'WAO',kpi:70,dtMoi:0,dtCu:13,deals:0,leads:27},
+    {name:'N.Hồ',team:'WAO',kpi:95,dtMoi:2,dtCu:12.9,deals:1,leads:16},
+    {name:'T.Nguyên',team:'WAO',kpi:48,dtMoi:0,dtCu:1.8,deals:0,leads:51},
+    {name:'H.Giang',team:'TING',kpi:100,dtMoi:0,dtCu:50,deals:0,leads:30},
+    {name:'N.Duy',team:'TING',kpi:100,dtMoi:30,dtCu:42,deals:1,leads:40},
+    {name:'K.Trúc',team:'TING',kpi:80,dtMoi:20,dtCu:30,deals:2,leads:50},
+    {name:'K.Duy',team:'TING',kpi:60,dtMoi:5,dtCu:60,deals:1,leads:35},
+    {name:'C.Hiếu',team:'WORK',kpi:100,dtMoi:0,dtCu:20,deals:0,leads:18},
+    {name:'H.Luân',team:'WORK',kpi:95,dtMoi:30,dtCu:90,deals:2,leads:8},
+    {name:'B.Thanh',team:'WORK',kpi:48,dtMoi:12,dtCu:4,deals:1,leads:60},
+  ]
+};
+PEOPLE_DATA.t3 = PEOPLE_DATA.t2.map(p=>({...p,dtMoi:p.dtMoi*1.1,dtCu:p.dtCu*1.05,deals:p.deals}));
+PEOPLE_DATA.t4 = PEOPLE_DATA.t2.map(p=>({...p,dtMoi:p.dtMoi*0.9,dtCu:p.dtCu*1.02}));
+
+// ===================== TASKS (persistent) =====================
+const STORAGE_KEY = 'vihat_tasks_v2';
+let tasks = [];
+function loadTasks(){
+  try{ tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch(e){ tasks=[]; }
+  if(tasks.length===0){ tasks = getSampleTasks(); saveTasks(); }
+}
+function saveTasks(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+function getSampleTasks(){
+  return [
+    {id:1,title:'Báo cáo tiến độ tuần 3 tháng 5',desc:'Tổng hợp kết quả tuần 3 của 3 team, gửi dashboard trước 9h thứ 2',assignee:'TP.Vận Hành',watcher:'C.Luân',priority:'high',due:'2026-05-20',status:'in-progress',type:'bao-cao',progress:'Đang tổng hợp số từ WAO và TING',created:'2026-05-15'},
+    {id:2,title:'Review pipeline cơ hội Team TING',desc:'Liệt kê toàn bộ cơ hội đang mở, dự kiến chốt trước 31/5, note rõ lý do delay',assignee:'H.Giang',watcher:'C.Luân',priority:'high',due:'2026-05-21',status:'todo',type:'kinh-doanh',progress:'',created:'2026-05-18'},
+    {id:3,title:'Chuẩn bị chương trình ưu đãi T6',desc:'Draft đề xuất chương trình cho tháng 6, align với KPI tháng 6 tăng mạnh',assignee:'T.Thăng',watcher:'C.Luân',priority:'med',due:'2026-05-25',status:'todo',type:'kinh-doanh',progress:'',created:'2026-05-18'},
+    {id:4,title:'Hoàn thiện quy trình duyệt yêu cầu',desc:'Map lại quy trình, xác định ai duyệt bước nào, tránh bottleneck ở CEO',assignee:'TP.Vận Hành',watcher:'C.Luân',priority:'med',due:'2026-05-30',status:'in-progress',type:'van-hanh',progress:'Đã draft v1, đang chờ review',created:'2026-05-10'},
+    {id:5,title:'Setup Google Sheet data cho dashboard',desc:'Tạo sheet mới, IMPORTRANGE các sheet quan trọng, share public viewer',assignee:'TP.Vận Hành',watcher:'C.Luân',priority:'high',due:'2026-05-22',status:'review',type:'van-hanh',progress:'Đã tạo sheet, đang import range',created:'2026-05-17'},
+  ];
+}
+
+// ===================== NAVIGATION =====================
+const PAGE_TITLES = {
+  dashboard:'Tổng quan CEO',teams:'Theo Team',people:'Nhân viên',
+  alerts:'Cảnh báo',tasks:'Giao Task',settings:'Kết nối Sheets'
+};
+const PAGE_SUBS = {
+  dashboard:'Vihat Solutions · Tháng 5/2026',teams:'3 Team Mass · WAO / TING / WORK',
+  people:'Hiệu suất từng nhân viên theo tháng',alerts:'Điểm cần chú ý ngay',
+  tasks:'Giao và tracking công việc',settings:'Cấu hình kết nối data'
+};
+function goTo(id){
+  document.querySelectorAll('.section-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+  });
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[id]||id;
+  document.getElementById('topbar-sub').textContent = PAGE_SUBS[id]||'';
+  if(id==='tasks') renderTasks();
+}
+
+function switchTab(page, tabId, contentId){
+  const pg = document.getElementById('page-'+page);
+  pg.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));
+  pg.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(contentId).classList.add('active');
+}
+
+// ===================== CHARTS =====================
+function initCharts(){
+  const pcts = ACTUAL_WAO.map((v,i)=>KPI_WAO[i]>0?Math.round(v/KPI_WAO[i]*100):0);
+  new Chart(document.getElementById('chartMonthly'),{
+    type:'bar',
+    data:{labels:MONTHS.slice(0,5),datasets:[
+      {label:'WAO %',data:pcts.slice(0,5).map((_,i)=>Math.round(ACTUAL_WAO[i]/KPI_WAO[i]*100)),backgroundColor:'#2d6a4f',borderRadius:4,stack:'a'},
+      {label:'Target',data:[100,100,100,100,100],type:'line',borderColor:'#dc3545',borderDash:[4,4],pointRadius:0,borderWidth:1.5,fill:false,stack:'b'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{max:130,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
+              x:{ticks:{font:{size:11}},grid:{display:false}}}}
+  });
+  new Chart(document.getElementById('chartTeamCompare'),{
+    type:'bar',
+    data:{labels:['Team WAO','Team TING','Team WORK'],datasets:[
+      {label:'Thực tế (tr)',data:[114,69,42],backgroundColor:'#1d4e89',borderRadius:4,barPercentage:0.4},
+      {label:'KPI (tr)',data:[660,620,360],backgroundColor:'rgba(29,78,137,0.12)',borderRadius:4,barPercentage:0.4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{ticks:{callback:v=>v+'tr',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
+              y:{ticks:{font:{size:11}},grid:{display:false}}}}
+  });
+  new Chart(document.getElementById('chartTeamMonthly'),{
+    type:'line',
+    data:{labels:MONTHS.slice(0,5),datasets:[
+      {label:'WAO',data:ACTUAL_WAO.slice(0,5),borderColor:'#1d4e89',backgroundColor:'rgba(29,78,137,0.08)',tension:.35,fill:true,pointRadius:3},
+      {label:'TING',data:ACTUAL_TING.slice(0,5),borderColor:'#2d6a4f',backgroundColor:'rgba(45,106,79,0.08)',tension:.35,fill:true,pointRadius:3},
+      {label:'WORK',data:ACTUAL_WORK.slice(0,5),borderColor:'#e09900',backgroundColor:'rgba(224,153,0,0.08)',tension:.35,fill:true,pointRadius:3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>v+'tr',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
+              x:{ticks:{font:{size:11}},grid:{display:false}}}}
+  });
+}
+
+// ===================== MEMBERS =====================
+const memberColors = ['#1d4e89','#2d6a4f','#7d4e00','#9b2226','#5c3d8f','#1a6b5a','#8b4513'];
+function renderMembers(){
+  const waoM = PEOPLE_DATA.t1.filter(p=>p.team==='WAO');
+  const tingM= PEOPLE_DATA.t1.filter(p=>p.team==='TING');
+  const workM= PEOPLE_DATA.t1.filter(p=>p.team==='WORK');
+  renderMemberList('wao-members',waoM,'kpi',0);
+  renderMemberList('ting-members',tingM,'kpi',3);
+  renderMemberList('work-members',workM,'kpi',6);
+}
+function renderMemberList(containerId, members, kpiKey, colorOffset){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = members.map((m,i)=>{
+    const pct = m.kpi>0?Math.round(m.dtMoi/m.kpi*100):0;
+    const cls = pct>=75?'fill-green':pct>=50?'fill-amber':'fill-red';
+    const tcls = pct>=75?'text-green':pct>=50?'text-amber':'text-red';
+    const initials = m.name.split('.').map(x=>x[0]).join('').slice(0,2);
+    const bg = memberColors[(i+colorOffset)%memberColors.length];
+    return `<div class="member-row">
+      <div class="member-av" style="background:${bg}">${initials}</div>
+      <div class="member-name">${m.name}</div>
+      <div class="member-bar"><div class="member-fill ${cls}" style="width:${Math.min(pct,100)}%"></div></div>
+      <div class="member-pct ${tcls}" style="min-width:36px;text-align:right;font-size:12px">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== PEOPLE TABLE =====================
+function renderPeopleTable(monthKey, containerId){
+  const data = PEOPLE_DATA[monthKey]||[];
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML = `
+    <div class="card">
+      <table class="data-table">
+        <thead><tr>
+          <th>Nhân viên</th><th>Team</th><th>KPI DT (tr)</th>
+          <th>DT Mới (tr)</th><th>DT Cũ (tr)</th>
+          <th>% KPI Mới</th><th>Deal</th><th>Lead</th>
+        </tr></thead>
+        <tbody>${data.map(p=>{
+          const pct = p.kpi>0?Math.round(p.dtMoi/p.kpi*100):0;
+          const cls = pct>=75?'chip-green':pct>=50?'chip-amber':'chip-red';
+          return `<tr>
+            <td><strong>${p.name}</strong></td>
+            <td><span class="chip chip-blue">${p.team}</span></td>
+            <td>${p.kpi}</td>
+            <td>${p.dtMoi.toFixed(1)}</td>
+            <td>${p.dtCu}</td>
+            <td><span class="chip ${cls}">${pct}%</span></td>
+            <td>${p.deals}</td>
+            <td>${p.leads}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+// ===================== TASKS =====================
+let currentFilter = 'all';
+let editingTaskId = null;
+
+function renderTasks(){
+  const statuses = ['todo','in-progress','review','done'];
+  statuses.forEach(s=>{
+    const col = document.getElementById('col-'+s);
+    const header = col.querySelector('.task-col-header');
+    const filtered = tasks.filter(t=>t.status===s&&(currentFilter==='all'||currentFilter===s));
+    document.getElementById('cnt-'+s).textContent = filtered.length;
+    const cards = filtered.map(t=>renderTaskCard(t)).join('');
+    col.innerHTML = '';
+    col.appendChild(header.cloneNode(true));
+    col.insertAdjacentHTML('beforeend',cards);
+    // Update count
+    col.querySelector('.task-count').textContent = filtered.length;
+  });
+  document.getElementById('open-task-count').textContent = tasks.filter(t=>t.status!=='done').length;
+}
+
+function renderTaskCard(t){
+  const priorityColors={high:'#dc3545',med:'#e09900',low:'#2d6a4f'};
+  const typeLabels={'kinh-doanh':'KD','van-hanh':'VH','bao-cao':'BC','nhan-su':'NS','khac':'Khác'};
+  const now = new Date(); const due = t.due?new Date(t.due):null;
+  const isOverdue = due&&due<now&&t.status!=='done';
+  return `<div class="task-card" onclick="editTask(${t.id})">
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:6px">
+      <div class="priority-dot" style="background:${priorityColors[t.priority]};margin-top:4px"></div>
+      <div class="task-title">${t.title}</div>
+    </div>
+    <div class="task-meta">
+      <span class="chip chip-blue" style="font-size:10px">${typeLabels[t.type]||'Khác'}</span>
+      ${t.progress?`<span class="chip chip-green" style="font-size:10px">Có cập nhật</span>`:''}
+    </div>
+    <div class="task-assignee"><i class="fa-solid fa-user" style="font-size:10px;color:var(--text3)"></i> ${t.assignee}</div>
+    ${t.due?`<div class="task-due${isOverdue?' overdue':''}"><i class="fa-solid fa-clock" style="font-size:10px"></i> ${t.due}${isOverdue?' ⚠ Quá hạn':''}</div>`:''}
+  </div>`;
+}
+
+function filterTasks(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+}
+
+function openTaskModal(){
+  editingTaskId = null;
+  document.getElementById('modal-title-text').textContent = 'Tạo Task mới';
+  document.getElementById('edit-task-id').value = '';
+  document.getElementById('task-title-input').value = '';
+  document.getElementById('task-desc-input').value = '';
+  document.getElementById('task-progress-input').value = '';
+  document.getElementById('task-priority-input').value = 'med';
+  document.getElementById('task-status-input').value = 'todo';
+  document.getElementById('task-type-input').value = 'kinh-doanh';
+  document.getElementById('task-due-input').value = '';
+  document.getElementById('task-modal-overlay').classList.add('open');
+}
+
+function editTask(id){
+  const t = tasks.find(x=>x.id===id);
+  if(!t) return;
+  editingTaskId = id;
+  document.getElementById('modal-title-text').textContent = 'Chỉnh sửa Task';
+  document.getElementById('edit-task-id').value = id;
+  document.getElementById('task-title-input').value = t.title;
+  document.getElementById('task-desc-input').value = t.desc||'';
+  document.getElementById('task-progress-input').value = t.progress||'';
+  document.getElementById('task-priority-input').value = t.priority;
+  document.getElementById('task-status-input').value = t.status;
+  document.getElementById('task-type-input').value = t.type||'khac';
+  document.getElementById('task-due-input').value = t.due||'';
+  const sel = document.getElementById('task-assignee-input');
+  sel.value = t.assignee||'';
+  document.getElementById('task-watcher-input').value = t.watcher||'';
+  document.getElementById('task-modal-overlay').classList.add('open');
+}
+
+function closeTaskModal(){ document.getElementById('task-modal-overlay').classList.remove('open'); }
+function closeModalOnOverlay(e){ if(e.target===document.getElementById('task-modal-overlay')) closeTaskModal(); }
+
+function saveTask(){
+  const title = document.getElementById('task-title-input').value.trim();
+  if(!title){ alert('Vui lòng nhập tiêu đề task'); return; }
+  const t = {
+    id: editingTaskId || Date.now(),
+    title,
+    desc: document.getElementById('task-desc-input').value.trim(),
+    assignee: document.getElementById('task-assignee-input').value,
+    watcher: document.getElementById('task-watcher-input').value,
+    priority: document.getElementById('task-priority-input').value,
+    due: document.getElementById('task-due-input').value,
+    status: document.getElementById('task-status-input').value,
+    type: document.getElementById('task-type-input').value,
+    progress: document.getElementById('task-progress-input').value.trim(),
+    created: editingTaskId ? (tasks.find(x=>x.id===editingTaskId)||{}).created : new Date().toISOString().slice(0,10),
+    updated: new Date().toISOString().slice(0,10),
+  };
+  if(editingTaskId){ tasks = tasks.map(x=>x.id===editingTaskId?t:x); }
+  else { tasks.push(t); }
+  saveTasks();
+  closeTaskModal();
+  renderTasks();
+}
+
+// ===================== STAFF SELECTS =====================
+function populateStaffSelects(){
+  const names = STAFF.map(s=>s.name);
+  ['task-assignee-input','task-watcher-input'].forEach(id=>{
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">— Chọn người —</option>';
+    STAFF.forEach(s=>{
+      const opt = document.createElement('option');
+      opt.value = s.name; opt.textContent = `${s.name} (${s.team})`;
+      sel.appendChild(opt);
+    });
+  });
+  const tbody = document.getElementById('staff-table-body');
+  if(tbody){
+    tbody.innerHTML = STAFF.map(s=>`<tr>
+      <td><strong>${s.name}</strong></td>
+      <td>${s.full}</td>
+      <td>${s.team}</td>
+      <td><span class="chip chip-blue">${s.role}</span></td>
+    </tr>`).join('');
+  }
+}
+
+// ===================== GOOGLE SHEETS =====================
+document.getElementById('gs-url-input').addEventListener('input',function(){
+  const url = this.value;
+  const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  document.getElementById('gs-id-display').value = m?m[1]:'';
+});
+function saveGSConfig(){
+  const url = document.getElementById('gs-url-input').value;
+  const id = document.getElementById('gs-id-display').value;
+  if(!id){ document.getElementById('gs-status').innerHTML='<span style="color:var(--red)">Link không hợp lệ. Vui lòng paste link Google Sheets đúng định dạng.</span>'; return; }
+  localStorage.setItem('vihat_gs_url', url);
+  localStorage.setItem('vihat_gs_id', id);
+  document.getElementById('gs-status').innerHTML='<span style="color:var(--green)">✓ Đã lưu cấu hình. Nhấn "Test kết nối" để kiểm tra.</span>';
+  document.getElementById('gs-banner').style.background='var(--green-bg)';
+  document.getElementById('gs-banner').querySelector('.gs-text').textContent='✓ Google Sheets đã được cấu hình';
+}
+function testGSConfig(){
+  const id = localStorage.getItem('vihat_gs_id');
+  if(!id){ document.getElementById('gs-status').innerHTML='<span style="color:var(--red)">Chưa có cấu hình. Nhập link trước.</span>'; return; }
+  const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+  document.getElementById('gs-status').innerHTML='<span style="color:var(--blue)">Đang kiểm tra kết nối...</span>';
+  fetch(url).then(r=>{
+    if(r.ok) document.getElementById('gs-status').innerHTML='<span style="color:var(--green)">✓ Kết nối thành công! Sheets đang public và đọc được.</span>';
+    else document.getElementById('gs-status').innerHTML='<span style="color:var(--red)">✗ Không đọc được. Kiểm tra lại quyền share của Sheets (cần "Anyone with the link – Viewer").</span>';
+  }).catch(()=>{ document.getElementById('gs-status').innerHTML='<span style="color:var(--red)">✗ Lỗi kết nối. Sheet chưa public hoặc link sai.</span>'; });
+}
+
+// ===================== SEARCH =====================
+function handleSearch(q){}
+
+// ===================== INIT =====================
+window.addEventListener('DOMContentLoaded',()=>{
+  loadTasks();
+  initCharts();
+  renderMembers();
+  populateStaffSelects();
+  ['t1','t2','t3','t4','t5'].forEach((m,i)=>{
+    renderPeopleTable(m,'tab-'+m);
+  });
+  renderTasks();
+  const savedUrl = localStorage.getItem('vihat_gs_url');
+  if(savedUrl) document.getElementById('gs-url-input').value = savedUrl;
+  const savedId = localStorage.getItem('vihat_gs_id');
+  if(savedId){ document.getElementById('gs-id-display').value = savedId; }
+});
+</script>
+</body>
+</html>
